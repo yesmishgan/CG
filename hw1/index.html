@@ -1,0 +1,75 @@
+<html>
+    <body>
+        <div style="position:absolute; top:410px; left:100px; ">
+            <canvas width="200px" height='50px' style='border: 1px solid black'>
+            </canvas>
+        </div>
+        <div style="position:absolute; top:460px; left:50px; ">
+            <canvas width="300px" height='50px' style='border: 1px solid black'>
+            </canvas>
+        </div>
+        <canvas id='hw01' width='400px' height='400px' style='border: 1px solid black'>
+        </canvas>
+        <script>
+        
+            function bresenham_line(context, x0, y0, x1, y1, colour) {
+                context.fillStyle = colour;
+                var eps = 0;
+
+                var x = x0, y = y0;
+                var signx = (x0 < x1) ? 1 : -1;
+                var signy = (y0 < y1) ? 1 : -1;
+                if (Math.abs(x1 - x0) > Math.abs(y1 - y0)) {
+                    while(x !== x1){
+                        eps = eps + 2*(y1-y0);
+                        if (Math.abs(eps) >= Math.abs(x1-x0)){
+                            y += signy * 1;
+                            eps -= signy * signx * (x1-x0) * 2;
+                        }
+                        x += signx*1;
+                        ctx.fillRect(x, y, 1, 1);
+                    }
+                } else {
+                    while (y !== y1) {
+                        eps = eps + 2*(x1-x0);
+                        if (Math.abs(eps) >= Math.abs(y1-y0)){
+                            x += signx * 1;
+                            eps -= signy * signx * (y1-y0) * 2;
+                        }
+                        y += signy*1;
+                        ctx.fillRect(x, y, 2, 2);
+                    }
+                }
+            }
+        </script>
+        
+        <script>
+            function rotation(context, x_start, y_start, radius) {
+                let alpha = ((new Date()).getSeconds() * 6 - 90) % 361;
+                console.log("alpha=" + alpha);
+                let x_end = Math.abs(Math.trunc(x_start + radius * Math.cos(alpha * Math.PI / 180)));
+                let y_end = Math.abs(Math.trunc(y_start + radius * Math.sin(alpha * Math.PI / 180)));
+                bresenham_line(context, x_start, y_start, x_end, y_end, '#0000ff');
+                setInterval(function () {
+                    bresenham_line(context, x_start, y_start, x_end, y_end, '#ffffff');
+                }, 1000);
+            }
+        </script>
+        
+        <script>
+            let canvas = document.getElementById('hw01');
+            let ctx = canvas.getContext('2d');
+            const x0 = 200, y0 = 200;
+            const R = 199;
+            ctx.strokeStyle = '#ff0000'
+            ctx.beginPath();
+            ctx.arc(x0, y0, R, 0, 2 * Math.PI);
+            ctx.stroke();
+        
+            setInterval(function () {
+                rotation(ctx, x0, y0, R)
+            }, 1000);
+        
+        </script>
+    </body>
+</html>
