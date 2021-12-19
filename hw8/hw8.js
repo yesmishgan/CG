@@ -101,4 +101,12 @@ let canv = document.getElementById("lab08")
             vert = []
         }
         reader.readAsText(input.files[0])
-    }, false)
+    }, false);
+
+    canv.addEventListener('keydown', function(e){
+        mode = e.key
+        if (mode === 'p') {
+            console.log(vert);
+        }
+    });
+

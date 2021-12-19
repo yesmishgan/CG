@@ -74,38 +74,81 @@ function MV_mul(M, v) {
 }
 
 var canvas = document.getElementById("lab7");
-        var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = '#D25755';
+canvas.setAttribute("tabindex", 0);
+let points = [[],[],[]];
+let counter = 0;
+    
+    
+canvas.addEventListener("click", function(event){
+    if (counter < 3) {
+        points[counter] = [event.offsetX, event.offsetY, 0];
+        ctx.fillRect(event.offsetX, event.offsetY, 2, 2);
+        counter++;
+    } else if (counter >= 3){
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(points[counter % 3][0], points[counter % 3][1], 2, 2);
         ctx.fillStyle = '#D25755';
-        canvas.setAttribute("tabindex", 0);
-        let points = [[],[],[]];
-        let counter = 0;
-    
-    
-        canvas.addEventListener("click", function(event){
-            if (counter < 3) {
-                points[counter] = [event.offsetX, event.offsetY, 0];
-                ctx.fillRect(event.offsetX, event.offsetY, 2, 2);
-                counter++;
-            }else if (counter >= 3){
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(points[counter % 3][0], points[counter % 3][1], 2, 2);
-                ctx.fillStyle = '#D25755';
-                points[counter % 3] = [event.offsetX, event.offsetY, 0];
-                ctx.fillRect(event.offsetX, event.offsetY, 2, 2);
-                counter++;
-            }
-        })
-        var mode
-        canvas.addEventListener('keydown', function(e){
-            mode = e.key
-            if (((mode === 'x') | (mode === 'y') | (mode === 'z'))){
-                P0 = points[0];
-                P1 = points[1];
-                P2 = points[2];
-                bezie(P0, P1, P2);
+        points[counter % 3] = [event.offsetX, event.offsetY, 0];
+        ctx.fillRect(event.offsetX, event.offsetY, 2, 2);
+        counter++;
+    }
+})
         
-                var P0_ = [];
-                var P2_ = [];
+var mode;
+        
+canvas.addEventListener('keydown', function(e){
+    mode = e.key
+    if (((mode === 'x') | (mode === 'y') | (mode === 'z'))){
+        P0 = points[0];
+        P1 = points[1];
+        P2 = points[2];
+        bezie(P0, P1, P2);
+        
+        var P0_ = [];
+        var P2_ = [];
+        
+        P0_[0] = P0[0];
+        P0_[1] = P0[1];
+        P0_[2] = P0[2];
+        P2_[0] = P2[0];
+        P2_[1] = P2[1];
+        P2_[2] = P2[2];
+        
+        for(var i = 0; i < 360; i += 10){
+        
+            var alpha = i*Math.PI/180;
+            P0_[0] -= P1[0];
+            P0_[1] -= P1[1];
+            P0_[2] -= P1[2];
+            P2_[0] -= P1[0];
+            P2_[1] -= P1[1];
+            P2_[2] -= P1[2];
+        
+            var M_x = [ 1, 0, 0, 0,
+                0, Math.cos(alpha), -1*Math.sin(alpha), 0,
+                0, Math.sin(alpha), Math.cos(alpha), 0,
+                0, 0, 0, 1];
+        
+            var M_y = [ Math.sin(alpha), 0, Math.cos(alpha), 0,
+                0, 1, 0, 0,
+                Math.cos(alpha), 0, -1*Math.sin(alpha), 0,
+                0, 0, 0, 1];
+
+            var M_z = [ Math.cos(alpha), -1*Math.sin(alpha), 0, 0,
+                Math.sin(alpha), Math.cos(alpha), 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 1];
+        
+            if (mode === 'x'){
+                var out = MV_mul(M_x, [P0_[0], P0_[1], P0_[2], 1]);
+                P0_[0] = out[0] + P1[0];
+                P0_[1] = out[1] + P1[1];
+                out = MV_mul(M_x, [P2_[0], P2_[1], P2_[2], 1]);
+                P2_[0] = out[0] + P1[0];
+                P2_[1] = out[1] + P1[1];
+                bezie(P0_, P1, P2_);
         
                 P0_[0] = P0[0];
                 P0_[1] = P0[1];
@@ -114,96 +157,55 @@ var canvas = document.getElementById("lab7");
                 P2_[1] = P2[1];
                 P2_[2] = P2[2];
         
-                for(var i = 0; i < 360; i += 10){
+            }else if(mode === 'y'){
+                var out = MV_mul(M_y, [P0_[0], P0_[1], P0_[2], 1]);
+                P0_[0] = out[0] + P1[0];
+                P0_[1] = out[1] + P1[1];
+                out = MV_mul(M_y, [P2_[0], P2_[1], P2_[2], 1]);
+                P2_[0] = out[0] + P1[0];
+                P2_[1] = out[1] + P1[1];
+                bezie(P0_, P1, P2_);
         
-                    var alpha = i*Math.PI/180;
-                    P0_[0] -= P1[0];
-                    P0_[1] -= P1[1];
-                    P0_[2] -= P1[2];
-                    P2_[0] -= P1[0];
-                    P2_[1] -= P1[1];
-                    P2_[2] -= P1[2];
+                P0_[0] = P0[0];
+                P0_[1] = P0[1];
+                P0_[2] = P0[2];
+                P2_[0] = P2[0];
+                P2_[1] = P2[1];
+                P2_[2] = P2[2];
         
-                    var M_x = [ 1, 0, 0, 0,
-                        0, Math.cos(alpha), -1*Math.sin(alpha), 0,
-                        0, Math.sin(alpha), Math.cos(alpha), 0,
-                        0, 0, 0, 1];
+            } else if(mode === 'z'){
+                var out = MV_mul(M_z, [P0_[0], P0_[1], P0_[2], 1]);
+                P0_[0] = out[0] + P1[0];
+                P0_[1] = out[1] + P1[1];
+                out = MV_mul(M_z, [P2_[0], P2_[1], P2_[2], 1]);
+                P2_[0] = out[0] + P1[0];
+                P2_[1] = out[1] + P1[1];
+                bezie(P0_, P1, P2_);
         
-                    var M_y = [ Math.sin(alpha), 0, Math.cos(alpha), 0,
-                        0, 1, 0, 0,
-                        Math.cos(alpha), 0, -1*Math.sin(alpha), 0,
-                        0, 0, 0, 1];
+                P0_[0] = P0[0];
+                P0_[1] = P0[1];
+                P0_[2] = P0[2];
+                P2_[0] = P2[0];
+                P2_[1] = P2[1];
+                P2_[2] = P2[2];
         
-                    var M_z = [ Math.cos(alpha), -1*Math.sin(alpha), 0, 0,
-                        Math.sin(alpha), Math.cos(alpha), 0, 0,
-                        0, 0, 0, 0,
-                        0, 0, 0, 1];
-        
-                    if (mode === 'x'){
-                        var out = MV_mul(M_x, [P0_[0], P0_[1], P0_[2], 1]);
-                        P0_[0] = out[0] + P1[0];
-                        P0_[1] = out[1] + P1[1];
-                        out = MV_mul(M_x, [P2_[0], P2_[1], P2_[2], 1]);
-                        P2_[0] = out[0] + P1[0];
-                        P2_[1] = out[1] + P1[1];
-                        bezie(P0_, P1, P2_);
-        
-                        P0_[0] = P0[0];
-                        P0_[1] = P0[1];
-                        P0_[2] = P0[2];
-                        P2_[0] = P2[0];
-                        P2_[1] = P2[1];
-                        P2_[2] = P2[2];
-        
-                    }else if(mode === 'y'){
-                        var out = MV_mul(M_y, [P0_[0], P0_[1], P0_[2], 1]);
-                        P0_[0] = out[0] + P1[0];
-                        P0_[1] = out[1] + P1[1];
-                        out = MV_mul(M_y, [P2_[0], P2_[1], P2_[2], 1]);
-                        P2_[0] = out[0] + P1[0];
-                        P2_[1] = out[1] + P1[1];
-                        bezie(P0_, P1, P2_);
-        
-                        P0_[0] = P0[0];
-                        P0_[1] = P0[1];
-                        P0_[2] = P0[2];
-                        P2_[0] = P2[0];
-                        P2_[1] = P2[1];
-                        P2_[2] = P2[2];
-        
-                    }else if(mode === 'z'){
-                        var out = MV_mul(M_z, [P0_[0], P0_[1], P0_[2], 1]);
-                        P0_[0] = out[0] + P1[0];
-                        P0_[1] = out[1] + P1[1];
-                        out = MV_mul(M_z, [P2_[0], P2_[1], P2_[2], 1]);
-                        P2_[0] = out[0] + P1[0];
-                        P2_[1] = out[1] + P1[1];
-                        bezie(P0_, P1, P2_);
-        
-                        P0_[0] = P0[0];
-                        P0_[1] = P0[1];
-                        P0_[2] = P0[2];
-                        P2_[0] = P2[0];
-                        P2_[1] = P2[1];
-                        P2_[2] = P2[2];
-        
-                    }
-        
-                }
-        
-                counter = 0;
-                points = [[],[],[]];
-            } else if (mode === 'c') {
-                for(var i = 0; i < points.length; i++){
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(points[i][0], points[i][1], 2, 2); 
-                }
-                ctx.fillStyle = '#D25755';
-                counter = 0;
-                points = [[],[],[]];
-            } else if (mode === 'r') {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                counter = 0;
-                points = [[],[],[]];
             }
-        })
+        
+        }
+        
+        counter = 0;
+        points = [[],[],[]];
+    } else if (mode === 'c') {
+        for(var i = 0; i < points.length; i++){
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(points[i][0], points[i][1], 2, 2); 
+        }
+        ctx.fillStyle = '#D25755';
+        counter = 0;
+        points = [[],[],[]];
+    } else if (mode === 'r') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        counter = 0;
+        points = [[],[],[]];
+    }
+})
